@@ -1,0 +1,69 @@
+题目描述:
+John 有两个孩子，在 John病逝后，留下了一组价值不一定相同的魔卡， 现在要求你设计一种策略，帮John的经管人将John的这些遗产分给他的两个孩子，使得他们获得的遗产差异最小（每张魔卡不能分拆）
+
+Codes:
+#include <iostream>
+#include <numeric>
+#include <vector>
+using namespace std;
+class Solution {
+private:
+	//两个后代分配到的资产
+	vector<int> s1;
+	vector<int> s2;
+public:
+	vector<vector<int>> legacy(vector<int> asset) {
+		int i = 0, j = 0;
+		//将资源求和
+		int sum = accumulate(asset.begin(), asset.end(), 0);
+		int half = sum / 2;
+		int len = asset.size();
+		//简单哈希表，便于求出分配具体结果
+		vector<int> hash(len, 0);
+		vector<vector<int>> dp(len + 1, vector<int>(half + 1, 0));
+		//类似于0-1背包问题
+		for (i = 1; i < len; i++) {
+			for (j = 1; j < half + 1; j++) {
+				if (asset[i - 1] < j) {
+					//递推表达式
+					dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - asset[i - 1]] + asset[i - 1]);
+				}
+				else {
+					//大于规定价值的资产装不了
+					dp[i][j] = dp[i - 1][j];
+				}
+			}
+		}
+		//回溯求值
+		i = len - 1;
+		j = half;
+		while (true) {
+			//说明这一列资产没有被选择
+			if (dp[i][j] == dp[i - 1][j]) {
+				i--;
+			}
+            //说明该资产被选择了
+			else {
+				s1.push_back(asset[i]);
+				hash[i] = 1;
+				//向前回溯
+				i--;
+				j -= asset[i];
+			}
+			if (dp[i][j] == 0) {
+				break;
+			}
+		}
+		for (int i = 0; i < len; i++) {
+			if (!hash[i]) {
+				s2.push_back(asset[i]);
+			}
+		}
+		vector<vector<int>> ans;
+		ans.push_back(s1);
+		ans.push_back(s2);
+		return ans;
+	}
+};
+
+//好长时间没写算法回来写的，0-1背包问题都写不利索了  :(
