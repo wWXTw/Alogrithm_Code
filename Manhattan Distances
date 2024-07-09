@@ -1,0 +1,27 @@
+模版来源: LeetCode - 3102. Minimize Manhattan Distances
+[https://leetcode.cn/problems/minimize-manhattan-distances/description/]
+对于曼哈顿距离，即|x1-x2|+|y1-y2|
+一共有以下四种情况:
+1.x1-x2+y1-y2 = (x1+y1)-(x2+y2)
+2.x1-x2+y2-y1 = (x1-y1)-(x2-y2)
+3.x2-x1+y1-y2 = (-x1+y1)-(-x2+y2)
+4.x2-x1+y2-y1 = (-x1-y1)-(-x2-y2)
+而对于求曼哈顿距离的简化
+实际上就是利用这个原理搭配数据结构进行优化
+将时间复杂度降低为O(logn)
+
+利用insert自动排序 -- O(nlogn)
+vector<multiset<int>> dist(4);
+for (auto& p : points) {
+    dist[0].insert(p[0] + p[1]);
+    dist[1].insert(p[0] - p[1]);
+    dist[2].insert(-p[0] + p[1]);
+    dist[3].insert(-p[0] - p[1]);
+}
+
+选择最大的距离 -- 线性时间
+int temp = INT_MIN;
+temp = max(temp, *prev(dist[0].end()) - *dist[0].begin());
+temp = max(temp, *prev(dist[1].end()) - *dist[1].begin());
+temp = max(temp, *prev(dist[2].end()) - *dist[2].begin());
+temp = max(temp, *prev(dist[3].end()) - *dist[3].begin());
